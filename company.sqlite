@@ -1,0 +1,63 @@
+SELECT * 
+FROM employees;
+
+SELECT * 
+FROM projects;
+
+SELECT first_name, last_name
+FROM employees
+WHERE current_project IS NULL;
+
+SELECT project_name 
+FROM projects
+WHERE project_id NOT IN (
+  SELECT current_project
+  FROM employees
+  WHERE current_project IS NOT NULL);
+
+SELECT project_name 
+FROM projects
+INNER JOIN employees
+  ON projects.project_id = employees.current_project
+WHERE current_project IS NOT NULL
+GROUP BY project_name
+ORDER BY COUNT(employee_id) DESC
+LIMIT 1;
+
+SELECT project_name 
+FROM projects
+INNER JOIN employees
+  ON projects.project_id = employees.current_project
+WHERE current_project IS NOT NULL
+GROUP BY current_project
+HAVING COUNT(current_project) > 1; 
+
+SELECT (COUNT(*) * 2) - (
+  SELECT COUNT(*)
+  FROM employees
+  WHERE current_project IS NOT NULL
+    AND position = 'Developer') AS 'Count'
+FROM projects;
+
+SELECT personality, COUNT(employee_id) AS "# of employees"
+FROM employees
+GROUP BY 1
+ORDER BY 2 DESC;
+
+SELECT project_name
+FROM projects
+INNER JOIN employees
+  ON projects.project_id = employees.current_project
+WHERE personality = "ENFJ";
+
+SELECT last_name, first_name, personality, project_name
+FROM employees
+INNER JOIN projects 
+  ON employees.current_project = projects.project_id
+WHERE personality = (
+   SELECT personality 
+   FROM employees
+   WHERE current_project IS NOT NULL
+   GROUP BY personality
+   ORDER BY COUNT(personality) DESC
+   LIMIT 1);
